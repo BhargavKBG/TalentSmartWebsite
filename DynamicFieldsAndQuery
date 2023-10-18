@@ -1,0 +1,38 @@
+public with sharing class ProductServiceLWC {
+    @AuraEnabled(cacheable=true)
+    public static List<String> getProduct2FieldsList() {
+        Map<String, Schema.SObjectField> fieldMap = Product2.getSObjectType().getDescribe().fields.getMap();
+        system.debug('fieldMap' +fieldMap);    
+        return new List<String>(fieldMap.keySet());
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Product2> getRecordsByFilter(List<String> pilldata) {
+    system.debug('String.join---------->'+String.join(pilldata, ' AND '));
+    String queryString = 'SELECT Id, Name FROM Product2';
+        system.debug(Database.query(queryString));
+    if (!pilldata.isEmpty()) {
+        queryString += ' WHERE ' + String.join(pilldata, ' AND ');
+        system.debug(Database.query(queryString));
+    } 
+    try {
+        List<Product2> filteredProducts = Database.query(queryString);
+        System.debug('filteredProducts------------>' + filteredProducts);
+        return filteredProducts;
+    } catch (Exception e) {
+        System.debug('Error executing query: ' + e.getMessage());
+        return null;
+    }
+}
+ @AuraEnabled(cacheable=true)
+    public static boolean datatype (string selectedvalue){
+        Schema.DisplayType fieldType = Product2.getSObjectType().getDescribe().fields.getMap().get(selectedvalue).getDescribe().getType();
+         if (fieldType == Schema.DisplayType.String || fieldType == Schema.DisplayType.Picklist) {
+                    return true;
+                        
+                } else {
+                    return false;
+             }
+    }
+
+}
