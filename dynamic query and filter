@@ -1,0 +1,51 @@
+public class DynamicObjectRelationData {
+
+    public static List<SObject> getAllChildObjects(string acc, List<String> childObjects ,list<string>pilldata) {
+        try {
+            if (acc == null ) {
+                throw new NullPointerException();
+            }
+             String query = 'SELECT Id';
+            for (String childObject : childObjects) {
+                if (childObject != null) {
+                    query += ', (SELECT Id ,AccountId FROM ' + childObject + ')';
+                }
+            }
+             query += ' FROM ' + acc ;
+            
+             if (!pilldata.isEmpty()) {
+                query += ' WHERE ' + String.join(pilldata, ' AND ');
+            }
+
+      
+            List<SObject> result = Database.query(query);
+            list<Account> Accts = (list<Account>)result; 
+            
+            for(Account Acct : Accts){
+                system.debug('Account ids -------->'+Acct.id);
+                for(contact con : Acct.contacts){
+              System.debug('contact ids -------->' + con.Id + ' | ' + con.AccountId);
+
+            }
+            }  
+            return result;
+           } catch (Exception e){
+            System.debug('Exception: ' + e.getMessage());
+            return null;
+             }
+    }
+}
+
+
+/*
+
+
+string acc = 'Account';
+list<string> childobject = new list<string>();
+childobject.add('contacts');
+childobject.add('Cases');
+list<string>pilldata = new list<string>();
+pilldata.add('Name = \'bhargav\'');
+
+DynamicObjectRelationData.getAllChildObjects(acc,childobject,pilldata);
+*/
